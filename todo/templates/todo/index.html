@@ -1,0 +1,81 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>todo</title>
+    <style>
+    .header {
+    background-color:black;
+    color:white;
+    text-align:center;
+    size:30px;
+    padding:10px;
+    }
+    .nav_normal {
+    line-height:30px;
+    background-color:#eeeeee;
+    height:300px;
+    width:100px;
+    float:left;
+    padding:5px;
+    text-align:center;
+}
+    .todolist {
+    width:600px;
+    float:left;
+    padding:10px;
+    line-height:30px;
+}
+    .nav_selected{
+    background-color:grey;
+    text-align:center;
+    color:#eeeeee;
+    border-radius: 10px;
+    }
+    .footer {
+    background-color:black;
+    color:white;
+    clear:both;
+    text-align:center;
+   padding:5px;
+}
+    </style>
+</head>
+<body>
+<div class="header">Todo list</div>
+<div class="nav_normal">
+    <!-- ['today','tomorrow','this week','next week','remain'] -->
+    {% if nav_conf %}
+        {% for nav_item in nav_conf %}
+            {% if nav_item.selected %}
+                <p class="nav_selected"><a href ="{% url 'todo:dayList' nav_item.code %}">{{nav_item.text}}</a></p>
+            {% else %}
+                <p><a href ="{% url 'todo:dayList' nav_item.code %}">{{nav_item.text}}</a></p>
+            {% endif %}
+        {% endfor %}
+    {% endif %}
+</div>
+{% if todo_list %}
+<div class="todolist">
+
+
+    {% for todo_item in todo_list %}
+        <div>
+            <p>
+            {% if todo_item.isDone %}
+                <span><input type="checkbox" checked disabled><s>{{todo_item.deadline_time}} {{todo_item.item_title}}</s> </span>
+            {% else %}
+                <span><input type="checkbox" value="{{todo_item.id}}" name="todo_selected_list"> {{todo_item.deadline_time}} {{todo_item.item_title}} </span>
+            {% endif %}
+            {# <span>  {{todo_item.deadline_time}} {{todo_item.item_title}} </span> #}
+            </p>
+        </div>
+    {% endfor %}
+
+
+</div>
+{% else %}
+<p>there's no records.</p>
+{% endif %}
+</body>
+</html>

@@ -72,7 +72,7 @@ def dayList(request,option):
     now_time = datetime.datetime.now()
     #nav_conf = [[0,'today','today',False],[1,'tomorrow','tomorrow',False],[7,'thisWeek','this week',False],[14,'nextWeek','next week',False],[-1,'remain','remain',False]]
     if option == 'today':
-        todo_list=Todoitem.objects.filter(deadline_time__date=datetime.date(now_time.year,now_time.month,now_time.day))
+        todo_list=Todoitem.objects.filter(deadline_time__date=datetime.date(now_time.year,now_time.month,now_time.day)).order_by('deadline_time')
         for i in nav_conf:
             if i['code'] == option:
                 i['selected']=True
@@ -80,20 +80,20 @@ def dayList(request,option):
 
     elif option == 'tomorrow':
         tomorrow_time=now_time + datetime.timedelta(days=1)
-        todo_list = Todoitem.objects.filter(deadline_time__date=datetime.date(tomorrow_time.year,tomorrow_time.month,tomorrow_time.day))
+        todo_list = Todoitem.objects.filter(deadline_time__date=datetime.date(tomorrow_time.year,tomorrow_time.month,tomorrow_time.day)).order_by('deadline_time')
         for i in nav_conf:
             if i['code'] == option:
                 i['selected']=True
                 break
 
     elif option == 'remain':
-        todo_list = Todoitem.objects.filter(isDone__exact=False)
+        todo_list = Todoitem.objects.filter(isDone__exact=False).order_by('deadline_time')
         for i in nav_conf:
             if i['code'] == option:
                 i['selected']=True
                 break
     elif option == 'all':
-        todo_list = Todoitem.objects.order_by('deadline_time')
+        todo_list = Todoitem.objects.order_by('deadline_time').order_by('deadline_time')
         for i in nav_conf:
             if i['code'] == option:
                 i['selected']=True
@@ -104,7 +104,7 @@ def dayList(request,option):
         sunday = monday + datetime.timedelta(days=6)
         sunday_date = datetime.datetime.date(sunday)
         if option == 'thisWeek':
-            todo_list= Todoitem.objects.filter(deadline_time__range=(monday_date,sunday_date))
+            todo_list= Todoitem.objects.filter(deadline_time__range=(monday_date,sunday_date)).order_by('deadline_time')
             for i in nav_conf:
                 if i['code'] == option:
                     i['selected']= True
@@ -114,7 +114,7 @@ def dayList(request,option):
             next_sunday= next_monday + datetime.timedelta(days=6)
             next_monday_date = datetime.datetime.date(next_monday)
             next_sunday_date = datetime.datetime.date(next_sunday)
-            todo_list= Todoitem.objects.filter(deadline_time__range=(next_monday_date,next_sunday_date))
+            todo_list= Todoitem.objects.filter(deadline_time__range=(next_monday_date,next_sunday_date)).order_by('deadline_time')
             for i in nav_conf:
                 if i['code'] == option:
                     i['selected']= True
@@ -125,16 +125,28 @@ def dayList(request,option):
         'nav_conf':nav_conf,
         'option':option
     }
-    return render(request,'todo/index.html',context)
+    return render(request,'todo/daylist.html',context)
 
-def done(request,option,*item_id_list):
-    print item_id_list
+def done(request):
+    item_id_list =  request.POST.getlist("todo_selected_list")
+    for item_id in item_id_list:
+        item = get_object_or_404(Todoitem,pk=item_id)
+        item.doIt()
+        item.save()
+    #reverse first parameters if t odo:index it will be ok
+    return HttpResponseRedirect(reverse('todo:index'))
+
+
+def sDone(request,option):
+    item_id_list =  request.POST.getlist("todo_selected_list")
     for item_id in item_id_list:
         item = get_object_or_404(Todoitem,pk=item_id)
         item.doIt()
         item.save()
 
-    return dayList(request, option)
+
+    return HttpResponseRedirect(reverse('todo:dayList',args=(option,)))
+
 
 
 

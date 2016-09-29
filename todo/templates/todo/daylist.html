@@ -58,16 +58,15 @@
 {% if todo_list %}
 <div class="todolist">
 
-    <form action="{% url 'todo:done' %}" method="post" >
+    <form action="{% url 'todo:sDone' option%}" method="post" >
         {% csrf_token %}
     {% for todo_item in todo_list %}
         <div>
             <p>
-            {% if not todo_item.isDone %}
-
-                <span><input type="checkbox" value="{{todo_item.id}}" name="todo_selected_list"> {{todo_item.deadline_time}} {{todo_item.item_title}} </span>
+            {% if todo_item.isDone %}
+                <span><input type="checkbox" checked disabled><s>{{todo_item.deadline_time}} {{todo_item.item_title}}</s> </span>
             {% else %}
-                {# <span><input type="checkbox" checked disabled><s>{{todo_item.deadline_time}} {{todo_item.item_title}}</s> </span> #}
+                <span><input type="checkbox" value="{{todo_item.id}}" name="todo_selected_list"> {{todo_item.deadline_time}} {{todo_item.item_title}} </span>
             {% endif %}
             {# <span>  {{todo_item.deadline_time}} {{todo_item.item_title}} </span> #}
             </p>
